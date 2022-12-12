@@ -8,7 +8,12 @@ enable_testing()
 include(GoogleTest)
 
 add_subdirectory(domain)
+add_subdirectory(usecase)
+add_subdirectory(infra)
 
-find_package(unofficial-nana REQUIRED)
-add_executable(important_urgent_matrix main.cpp)
-target_link_libraries(important_urgent_matrix PRIVATE unofficial::nana::nana)
+add_executable(app main.cpp)
+target_link_libraries(app ftx usecase file_sequence)
+
+#find_package(unofficial-nana REQUIRED)
+#add_executable(important_urgent_matrix main.cpp)
+#target_link_libraries(important_urgent_matrix PRIVATE unofficial::nana::nana)
