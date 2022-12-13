@@ -11,7 +11,7 @@
 
 class ListView {
 public:
-    explicit ListView(std::function<void(std::string, size_t pos)> element_position_changed) :
+    explicit ListView(std::function<void(std::string, std::string)> element_position_changed) :
             container_(ftxui::Container::Vertical({})),
             element_position_changed_(std::move(element_position_changed)) {
         BuildShortcut();
@@ -53,7 +53,7 @@ private:
                 std::swap(components_[pos], components_[pos - 1]);
                 Refresh();
                 components_[pos - 1].second->TakeFocus();
-                element_position_changed_(components_[pos - 1].first, pos - 1);
+                element_position_changed_(components_[pos].first, components_[pos - 1].first);
                 return true;
             }
             if (event == key_ctrl_down_) { // Ctrl + Down
@@ -65,7 +65,7 @@ private:
                 std::swap(components_[pos], components_[pos + 1]);
                 Refresh();
                 components_[pos + 1].second->TakeFocus();
-                element_position_changed_(components_[pos + 1].first, pos + 1);
+                element_position_changed_(components_[pos].first, components_[pos + 1].first);
                 return true;
             }
             return false;
@@ -92,18 +92,61 @@ private:
     ftxui::Component container_;
     ftxui::Component shortcut_;
 
-    std::function<void(std::string, size_t pos)> element_position_changed_;
+    std::function<void(std::string, std::string)> element_position_changed_;
 };
 
 Ftx::Ftx(const std::shared_ptr<IUsecase> &usecase) : usecase_(usecase) {}
 
+void ShowMatrix(const std::vector<std::string> &important, const std::vector<std::string> &urgent) {
+    std::vector<std::vector<ftxui::Element>> matrix;
+    for (int i = 0; i < important.size(); ++i) {
+        auto &row = matrix.emplace_back();
+        for (int j = 0; j < important.size(); ++j) {
+            row.emplace_back(ftxui::text("☆") | ftxui::center | ftxui::border);
+        }
+    }
+    std::unordered_map<std::string, size_t> important_map, urgent_map;
+    {
+        for (int i = 0; i < important.size(); ++i) {
+            important_map[important[i]] = i;
+        }
+    }
+
+    {
+        for (int i = 0; i < urgent.size(); ++i) {
+            urgent_map[urgent[i]] = i;
+        }
+    }
+
+    for (const auto &item: important) {
+        unsigned long row = urgent_map[item];
+        unsigned long col = important.size() - 1 - important_map[item];
+        matrix[row][col] =
+                ftxui::text(item) | ftxui::border;
+    }
+
+    auto gridbox = ftxui::gridbox(matrix);
+    auto layout = ftxui::Container::Vertical({
+
+                                             });
+
+    auto renderer = ftxui::Renderer(layout, [&] {
+        return ftxui::vbox({
+                                   gridbox | ftxui::border
+                           });
+    });
+
+    auto screen = ftxui::ScreenInteractive::Fullscreen();
+    screen.Loop(renderer);
+}
+
 void Ftx::Run() {
     auto screen = ftxui::ScreenInteractive::Fullscreen();
-    auto important = ListView([&](std::string text, size_t pos) {
-        usecase_->ChangeImportantOrder(std::move(text), pos);
+    auto important = ListView([&](const std::string &text, const std::string &dst) {
+        usecase_->ChangeImportantOrder(text, dst);
     });
-    auto urgent = ListView([&](std::string text, size_t pos) {
-        usecase_->ChangeUrgentOrder(std::move(text), pos);
+    auto urgent = ListView([&](const std::string &text, const std::string &dst) {
+        usecase_->ChangeUrgentOrder(text, dst);
     });
 
     {
@@ -130,16 +173,21 @@ void Ftx::Run() {
         add_word.clear();
     });
 
+    auto show_button = ftxui::Button("Show", [&] {
+        ShowMatrix(usecase_->ListImportantNotes(), usecase_->ListUrgentNotes());
+    });
+
     auto layout = ftxui::Container::Horizontal({
                                                        important.GetComponent(),
                                                        urgent.GetComponent(),
                                                        ftxui::Container::Vertical({
                                                                                           add_input,
-                                                                                          add_button
+                                                                                          add_button,
+                                                                                          show_button
                                                                                   })
                                                });
 
-    auto renderer = ftxui::Renderer(layout, [&]() {
+    auto renderer = ftxui::Renderer(layout, [&] {
         return ftxui::hbox({
                                    ftxui::vbox({
                                                        ftxui::text("important"),
@@ -157,7 +205,8 @@ void Ftx::Run() {
                                                        ftxui::text("add note"),
                                                        ftxui::separator(),
                                                        add_input->Render(),
-                                                       add_button->Render()
+                                                       add_button->Render(),
+                                                       show_button->Render()
                                                }) | ftxui::border
                            });
     });

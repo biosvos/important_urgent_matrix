@@ -29,10 +29,10 @@ std::vector<std::string> Usecase::ListUrgentNotes() {
     return urgent_sequence_->List();
 }
 
-void Usecase::ChangeImportantOrder(std::string text, size_t pos) {
-    important_sequence_->ChangeOrder(text, pos);
+void Usecase::ChangeImportantOrder(std::string text, std::string dst) {
+    important_sequence_->ChangeOrder(text, dst);
 }
 
-void Usecase::ChangeUrgentOrder(std::string text, size_t pos) {
-    urgent_sequence_->ChangeOrder(text, pos);
+void Usecase::ChangeUrgentOrder(std::string text, std::string dst) {
+    urgent_sequence_->ChangeOrder(text, dst);
 }

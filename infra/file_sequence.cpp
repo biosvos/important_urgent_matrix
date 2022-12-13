@@ -52,22 +52,18 @@ std::vector<std::string> FileSequence::MapToStrings() {
     return ret;
 }
 
-void FileSequence::ChangeOrder(std::string text, size_t pos) {
-    if (pos >= m_.size()) {
-        throw std::out_of_range("failed to change order");
-    }
-
+void FileSequence::ChangeOrder(std::string text, std::string dst) {
     if (m_.find(text) == m_.end()) {
         throw std::logic_error("failed to change order, not found text");
     }
 
-    for (auto &[key, value]: m_) {
-        if (value >= pos) {
-            ++value;
-        }
+    if (m_.find(dst) == m_.end()) {
+        throw std::logic_error("failed to change order, not found text");
     }
 
-    m_[text] = pos;
+    auto tmp = m_[text];
+    m_[text] = m_[dst];
+    m_[dst] = tmp;
 
     auto arr = MapToStrings();
     std::ofstream ofs(filename_);

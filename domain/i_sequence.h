@@ -19,7 +19,7 @@ public:
 
     virtual std::vector<std::string> List() = 0;
 
-    virtual void ChangeOrder(std::string text, size_t pos) = 0;
+    virtual void ChangeOrder(std::string text, std::string dst) = 0;
 };
 
 #endif //IMPORTANT_URGENT_MATRIX_I_SEQUENCE_H

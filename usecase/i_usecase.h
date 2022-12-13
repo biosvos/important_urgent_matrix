@@ -21,9 +21,9 @@ public:
 
     virtual std::vector<std::string> ListUrgentNotes() = 0;
 
-    virtual void ChangeImportantOrder(std::string text, size_t pos) = 0;
+    virtual void ChangeImportantOrder(std::string text, std::string dst) = 0;
 
-    virtual void ChangeUrgentOrder(std::string text, size_t pos) = 0;
+    virtual void ChangeUrgentOrder(std::string text, std::string dst) = 0;
 };
 
 #endif //IMPORTANT_URGENT_MATRIX_I_USECASE_H

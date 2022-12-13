@@ -18,7 +18,7 @@ public:
 
     std::vector<std::string> List() override;
 
-    void ChangeOrder(std::string text, size_t pos) override;
+    void ChangeOrder(std::string text, std::string dst) override;
 
 private:
     std::vector<std::string> MapToStrings();

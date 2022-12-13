@@ -22,9 +22,9 @@ public:
 
     std::vector<std::string> ListUrgentNotes() override;
 
-    void ChangeImportantOrder(std::string text, size_t pos) override;
+    void ChangeImportantOrder(std::string text, std::string dst) override;
 
-    void ChangeUrgentOrder(std::string text, size_t pos) override;
+    void ChangeUrgentOrder(std::string text, std::string dst) override;
 
 private:
     std::shared_ptr<ISequence> important_sequence_, urgent_sequence_;
