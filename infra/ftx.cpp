@@ -44,7 +44,7 @@ private:
 
     void BuildShortcut() {
         shortcut_ = ftxui::CatchEvent(container_, [&](const ftxui::Event &event) {
-            if (event == key_ctrl_up_) { // Ctrl + Up
+            if (event == key_ctrl_up_) {
                 auto pos = GetFocusedElementIndex();
                 if (pos == 0) {
                     return false;
@@ -56,7 +56,7 @@ private:
                 element_position_changed_(components_[pos].first, components_[pos - 1].first);
                 return true;
             }
-            if (event == key_ctrl_down_) { // Ctrl + Down
+            if (event == key_ctrl_down_) {
                 auto pos = GetFocusedElementIndex();
                 if (pos == components_.size() - 1) {
                     return false;
