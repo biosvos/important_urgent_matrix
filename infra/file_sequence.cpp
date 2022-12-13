@@ -29,7 +29,19 @@ void FileSequence::Add(std::string text) {
 }
 
 void FileSequence::Erase(std::string text) {
-    m_.erase(text);
+    auto it = m_.find(text);
+    if (it == m_.end()) {
+        throw std::runtime_error("failed to erase");
+    }
+
+    auto index = it->second;
+
+    for (auto &[key, value]: m_) {
+        if (value > index) {
+            --value;
+        }
+    }
+    m_.erase(it);
 
     auto arr = MapToStrings();
     std::ofstream ofs(filename_);

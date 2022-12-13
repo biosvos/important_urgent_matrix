@@ -68,6 +68,13 @@ private:
                 element_position_changed_(components_[pos].first, components_[pos + 1].first);
                 return true;
             }
+            if (event == ftxui::Event::Delete) {
+                int pos = static_cast<int>(GetFocusedElementIndex());
+                element_erased_(components_[pos].first);
+                components_.erase(components_.begin() + pos);
+                Refresh();
+                return true;
+            }
             return false;
         });
     }
@@ -93,6 +100,11 @@ private:
     ftxui::Component shortcut_;
 
     std::function<void(std::string, std::string)> element_position_changed_;
+    std::function<void(std::string)> element_erased_;
+public:
+    void SetElementErased(const std::function<void(std::string)> &element_erased) {
+        element_erased_ = element_erased;
+    }
 };
 
 Ftx::Ftx(const std::shared_ptr<IUsecase> &usecase) : usecase_(usecase) {}
@@ -147,6 +159,16 @@ void Ftx::Run() {
     });
     auto urgent = ListView([&](const std::string &text, const std::string &dst) {
         usecase_->ChangeUrgentOrder(text, dst);
+    });
+
+    important.SetElementErased([&](const std::string &text) {
+        usecase_->DeleteNote(text);
+        urgent.Erase(text);
+    });
+
+    urgent.SetElementErased([&](const std::string &text) {
+        usecase_->DeleteNote(text);
+        important.Erase(text);
     });
 
     {
