@@ -5,6 +5,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <utility>
+#include <matplot/matplot.h>
 
 #include "ftx.h"
 
@@ -107,16 +108,11 @@ public:
     }
 };
 
-Ftx::Ftx(const std::shared_ptr<IUsecase> &usecase) : usecase_(usecase) {}
+Ftx::Ftx(const std::shared_ptr<IUsecase> &usecase) :
+        usecase_(usecase) {}
+
 
 void ShowMatrix(const std::vector<std::string> &important, const std::vector<std::string> &urgent) {
-    std::vector<std::vector<ftxui::Element>> matrix;
-    for (int i = 0; i < important.size(); ++i) {
-        auto &row = matrix.emplace_back();
-        for (int j = 0; j < important.size(); ++j) {
-            row.emplace_back(ftxui::text("☆") | ftxui::center | ftxui::border);
-        }
-    }
     std::unordered_map<std::string, size_t> important_map, urgent_map;
     {
         for (int i = 0; i < important.size(); ++i) {
@@ -130,26 +126,22 @@ void ShowMatrix(const std::vector<std::string> &important, const std::vector<std
         }
     }
 
+    std::vector<double> xs;
+    std::vector<double> ys;
+    std::vector<std::string> texts;
     for (const auto &item: important) {
-        unsigned long row = urgent_map[item];
-        unsigned long col = important.size() - 1 - important_map[item];
-        matrix[row][col] =
-                ftxui::text(item) | ftxui::border;
+        auto row = static_cast<double>(urgent.size() - 1 - urgent_map[item]);
+        auto col = static_cast<double>(important.size() - 1 - important_map[item]);
+        xs.push_back(col);
+        ys.push_back(row);
+        texts.push_back(item);
     }
-
-    auto gridbox = ftxui::gridbox(matrix);
-    auto layout = ftxui::Container::Vertical({
-
-                                             });
-
-    auto renderer = ftxui::Renderer(layout, [&] {
-        return ftxui::vbox({
-                                   gridbox | ftxui::border
-                           });
-    });
-
-    auto screen = ftxui::ScreenInteractive::Fullscreen();
-    screen.Loop(renderer);
+    matplot::scatter(xs, ys);
+    matplot::xlabel("중요도");
+    matplot::ylabel("긴급도");
+    matplot::grid(true);
+    matplot::text(xs, ys, texts);
+    matplot::show();
 }
 
 void Ftx::Run() {
