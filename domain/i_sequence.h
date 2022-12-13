@@ -6,6 +6,7 @@
 #define IMPORTANT_URGENT_MATRIX_I_SEQUENCE_H
 
 #include <string>
+#include <vector>
 
 class ISequence {
 public:
@@ -15,6 +16,8 @@ public:
     virtual void Add(std::string text) = 0;
 
     virtual void Erase(std::string text) = 0;
+
+    virtual std::vector<std::string> List() = 0;
 
     virtual void ChangeOrder(std::string text, size_t pos) = 0;
 };

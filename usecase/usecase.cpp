@@ -6,6 +6,11 @@
 
 #include <utility>
 
+Usecase::Usecase(std::shared_ptr<ISequence> important_sequence,
+                 std::shared_ptr<ISequence> urgent_sequence) :
+        important_sequence_(std::move(important_sequence)),
+        urgent_sequence_(std::move(urgent_sequence)) {}
+
 void Usecase::CreateNote(std::string text) {
     important_sequence_->Add(text);
     urgent_sequence_->Add(text);
@@ -17,22 +22,17 @@ void Usecase::DeleteNote(std::string text) {
 }
 
 std::vector<std::string> Usecase::ListImportantNotes() {
-    return std::vector<std::string>();
+    return important_sequence_->List();
 }
 
 std::vector<std::string> Usecase::ListUrgentNotes() {
-    return std::vector<std::string>();
+    return urgent_sequence_->List();
 }
 
 void Usecase::ChangeImportantOrder(std::string text, size_t pos) {
-
+    important_sequence_->ChangeOrder(text, pos);
 }
 
 void Usecase::ChangeUrgentOrder(std::string text, size_t pos) {
-
+    urgent_sequence_->ChangeOrder(text, pos);
 }
-
-Usecase::Usecase(std::shared_ptr<ISequence> important_sequence,
-                 std::shared_ptr<ISequence> urgent_sequence) :
-        important_sequence_(std::move(important_sequence)),
-        urgent_sequence_(std::move(urgent_sequence)) {}
